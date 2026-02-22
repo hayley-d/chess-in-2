@@ -1,5 +1,10 @@
+use colored::Color;
 use colored::Colorize;
+use rand::prelude::IndexedRandom;
+use rand::seq::SliceRandom;
 use std::fmt;
+
+// Get an RNG:
 
 #[derive(PartialEq, Copy, Clone, Debug)]
 enum PieceTypes {
@@ -14,14 +19,20 @@ enum PieceTypes {
 
 #[derive(PartialEq, Copy)]
 struct Piece {
+    color: Color,
     value: PieceTypes,
     x: usize,
     y: usize,
 }
 
+struct Move {
+    x: usize,
+    y: usize,
+}
+
 impl Piece {
-    pub fn new(value: PieceTypes, x: usize, y: usize) -> Self {
-        Piece { value, x, y }
+    pub fn new(color: Color, value: PieceTypes, x: usize, y: usize) -> Self {
+        Piece { color, value, x, y }
     }
 }
 
@@ -33,17 +44,23 @@ impl Clone for Piece {
 
 #[warn(dead_code)]
 struct GameBoard {
-    board: [[Option<Box<Piece>>; 8]; 8],
+    board: [[Piece; 8]; 8],
 }
 
 impl GameBoard {
     fn new() -> Self {
-        let mut board: [[Option<Box<Piece>>; 8]; 8] = Default::default();
+        let mut board: [[Piece; 8]; 8] = Default::default();
 
         let mut x: usize = 0;
         while x < 8 {
             let mut y: usize = 0;
             while y < 8 {
+                let color = match (x, y) {
+                    (_, 0) | (_, 1) => Color::Black,
+                    (_, 7) | (_, 6) => Color::White,
+                    _ => Color::Red,
+                };
+
                 let p_type = match (x, y) {
                     (0, 0) | (7, 0) | (0, 7) | (7, 7) => PieceTypes::Rook,
                     (1, 0) | (1, 7) | (6, 0) | (6, 7) => PieceTypes::Knight,
@@ -55,13 +72,38 @@ impl GameBoard {
                 };
 
                 if p_type != PieceTypes::Null {
-                    board[x][y] = Some(Box::new(Piece::new(p_type, x, y)));
+                    board[x][y] = Piece::new(color, p_type, x, y);
                 }
                 y += 1;
             }
             x += 1;
         }
         GameBoard { board }
+    }
+
+    fn get_color(&self, color: Color) -> Vec<&Piece> {
+        let mut pieces: Vec<&Piece> = Vec::new();
+        for row in 0..8 {
+            for col in 0..8 {
+                let piece = self.board[row][col];
+                if piece.color == color && piece.value != PieceTypes::Null {
+                    pieces.push(&self.board[row][col]);
+                }
+            }
+        }
+
+        pieces
+    }
+}
+
+impl std::default::Default for Piece {
+    fn default() -> Self {
+        Self {
+            color: Color::Red,
+            value: PieceTypes::Null,
+            x: Default::default(),
+            y: Default::default(),
+        }
     }
 }
 
@@ -88,14 +130,14 @@ impl fmt::Display for GameBoard {
             write!(f, "{} │", row + 1)?;
             for col in 0..8 {
                 let piece = &self.board[col][row];
-                let symbol = match piece {
-                    Some(p) => format!("{}", p),
-                    None => "   ".to_string(),
+                let symbol = match piece.value {
+                    PieceTypes::Null => "   ".to_string(),
+                    p => format!("{}", p),
                 };
                 if is_black(col, row) {
-                    write!(f, "{}│", symbol.on_black().white())?;
+                    write!(f, "{}│", symbol.color(Color::White).on_color(Color::Black))?;
                 } else {
-                    write!(f, "{}│", symbol.on_white().black())?;
+                    write!(f, "{}│", symbol.color(Color::Black).on_color(Color::White))?;
                 }
             }
             write!(f, " {}", row + 1)?;
@@ -120,9 +162,67 @@ impl fmt::Display for Piece {
 
 fn main() {
     let gameboard = GameBoard::new();
-    println!("{}", gameboard);
+
+    game_loop(&gameboard);
 }
 
 fn is_black(col: usize, row: usize) -> bool {
-    (col + row) % 2 == 0
+    (col + row).is_multiple_of(2)
+}
+
+fn game_loop(gameboard: &GameBoard) {
+    let is_white = determine_color();
+
+    if is_white {
+        println!("You are playing as white");
+    } else {
+        println!("You are playing as black");
+    }
+
+    println!("{}", gameboard);
+
+    println!("Please select a piece to move from the following list:");
+    let pieces = get_possible_pieces(is_white, gameboard);
+}
+
+fn determine_color() -> bool {
+    let mut rng = rand::rng();
+    let mut nums: Vec<i32> = (1..100).collect();
+    nums.shuffle(&mut rng);
+    let random_number = nums.choose(&mut rng).copied().unwrap_or(0);
+    random_number % 2 == 0
+}
+
+fn get_possible_pieces(is_white: bool, gameboard: &GameBoard) -> Vec<&Piece> {
+    let color = if is_white { Color::White } else { Color::Black };
+    let pieces = gameboard.get_color(color);
+    for piece in &pieces {
+        let name = match piece.value {
+            PieceTypes::Pawn => "Pawn",
+            PieceTypes::Rook => "Rook",
+            PieceTypes::Knight => "Knight",
+            PieceTypes::Bishop => "Bishop",
+            PieceTypes::Queen => "Queen",
+            PieceTypes::King => "King",
+            _ => " ",
+        };
+
+        let x = match piece.x {
+            0 => "A",
+            1 => "B",
+            2 => "C",
+            3 => "D",
+            4 => "E",
+            5 => "F",
+            6 => "G",
+            _ => "H",
+        };
+
+        println!("{} in {} {}", name, x, 8 - piece.y);
+    }
+    pieces
+}
+
+fn get_possible_moves(gameboard: &GameBoard) -> Vec<Move> {
+    todo!()
 }
