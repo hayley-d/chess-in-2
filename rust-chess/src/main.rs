@@ -1,3 +1,4 @@
+use colored::Colorize;
 use std::fmt;
 
 #[derive(PartialEq, Copy, Clone, Debug)]
@@ -67,31 +68,47 @@ impl GameBoard {
 impl fmt::Display for PieceTypes {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         match self {
-            PieceTypes::Pawn => write!(f, "p"),
-            PieceTypes::Knight => write!(f, "kn"),
-            PieceTypes::Bishop => write!(f, "B"),
-            PieceTypes::Rook => write!(f, "R"),
-            PieceTypes::Queen => write!(f, "Q"),
-            PieceTypes::King => write!(f, "K"),
-            _ => write!(f, " "),
+            PieceTypes::Pawn => write!(f, " p "),
+            PieceTypes::Knight => write!(f, "kn "),
+            PieceTypes::Bishop => write!(f, " B "),
+            PieceTypes::Rook => write!(f, " R "),
+            PieceTypes::Queen => write!(f, " Q "),
+            PieceTypes::King => write!(f, " K "),
+            _ => write!(f, "   "),
         }
     }
 }
 
 impl fmt::Display for GameBoard {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        let mut row = 0_usize;
-        let mut col = 0_usize;
+        writeln!(f, "    a   b   c   d   e   f   g   h")?;
+        writeln!(f, "  ┌───┬───┬───┬───┬───┬───┬───┬───┐")?;
 
-        while row < 7 {
-            while col < 7 {
-                col += 1;
+        for row in (0..8).rev() {
+            write!(f, "{} │", row + 1)?;
+            for col in 0..8 {
+                let piece = &self.board[col][row];
+                let symbol = match piece {
+                    Some(p) => format!("{}", p),
+                    None => "   ".to_string(),
+                };
+                if is_black(col, row) {
+                    write!(f, "{}│", symbol.on_black().white())?;
+                } else {
+                    write!(f, "{}│", symbol.on_white().black())?;
+                }
             }
-
-            row += 1;
+            write!(f, " {}", row + 1)?;
+            if row > 0 {
+                writeln!(f)?;
+                writeln!(f, "  ├───┼───┼───┼───┼───┼───┼───┼───┤")?;
+            }
         }
 
-        todo!();
+        writeln!(f)?;
+        writeln!(f, "  └───┴───┴───┴───┴───┴───┴───┴───┘")?;
+        writeln!(f, "    a   b   c   d   e   f   g   h")?;
+        Ok(())
     }
 }
 
@@ -102,16 +119,10 @@ impl fmt::Display for Piece {
 }
 
 fn main() {
-    let _gameboard = GameBoard::new();
-    // Todo: randomise if white or black
-    // Print trait for gameboard
-    println!("Hello, world!");
+    let gameboard = GameBoard::new();
+    println!("{}", gameboard);
 }
 
-fn is_black(x: usize, y: usize) -> bool {
-    if x % 2 == 0 && y % 2 == 0 {
-        true
-    } else {
-        false
-    }
+fn is_black(col: usize, row: usize) -> bool {
+    (col + row) % 2 == 0
 }
