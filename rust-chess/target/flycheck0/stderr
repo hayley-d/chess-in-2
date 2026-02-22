@@ -1,0 +1,82 @@
+   0.027875167s  INFO prepare_target{force=false package_id=chess v0.1.0 (/Users/hayley/Projects/chess/rust-chess) target="chess"}: cargo::core::compiler::fingerprint: fingerprint error for chess v0.1.0 (/Users/hayley/Projects/chess/rust-chess)/Check { test: false }/TargetInner { name: "chess", doc: true, ..: with_path("/Users/hayley/Projects/chess/rust-chess/src/main.rs", Edition2024) }
+   0.027886042s  INFO prepare_target{force=false package_id=chess v0.1.0 (/Users/hayley/Projects/chess/rust-chess) target="chess"}: cargo::core::compiler::fingerprint:     err: failed to read `/Users/hayley/Projects/chess/rust-chess/target/debug/.fingerprint/chess-359a4f1f7114a347/bin-chess`
+
+Caused by:
+    No such file or directory (os error 2)
+
+Stack backtrace:
+   0: std::backtrace::Backtrace::create
+   1: std::backtrace::Backtrace::capture
+   2: <E as anyhow::context::ext::StdError>::ext_context
+   3: cargo_util::paths::read
+   4: cargo::core::compiler::fingerprint::_compare_old_fingerprint
+   5: cargo::core::compiler::fingerprint::prepare_target
+   6: cargo::core::compiler::compile
+   7: cargo::core::compiler::build_runner::BuildRunner::compile
+   8: cargo::ops::cargo_compile::compile_ws
+   9: cargo::ops::cargo_compile::compile_with_exec
+  10: cargo::ops::cargo_compile::compile
+  11: cargo::commands::check::exec
+  12: cargo::cli::Exec::exec
+  13: cargo::cli::main
+  14: cargo::main
+  15: std::sys::backtrace::__rust_begin_short_backtrace
+  16: std::rt::lang_start::{{closure}}
+  17: std::rt::lang_start_internal
+  18: _main
+   0.032083625s  INFO prepare_target{force=false package_id=colored v3.1.1 target="colored"}: cargo::core::compiler::fingerprint: fingerprint error for colored v3.1.1/Check { test: false }/TargetInner { ..: lib_target("colored", ["lib"], "/Users/hayley/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/colored-3.1.1/src/lib.rs", Edition2021) }
+   0.032091000s  INFO prepare_target{force=false package_id=colored v3.1.1 target="colored"}: cargo::core::compiler::fingerprint:     err: failed to read `/Users/hayley/Projects/chess/rust-chess/target/debug/.fingerprint/colored-5376cb4ab04b298c/lib-colored`
+
+Caused by:
+    No such file or directory (os error 2)
+
+Stack backtrace:
+   0: std::backtrace::Backtrace::create
+   1: std::backtrace::Backtrace::capture
+   2: <E as anyhow::context::ext::StdError>::ext_context
+   3: cargo_util::paths::read
+   4: cargo::core::compiler::fingerprint::_compare_old_fingerprint
+   5: cargo::core::compiler::fingerprint::prepare_target
+   6: cargo::core::compiler::compile
+   7: cargo::core::compiler::compile
+   8: cargo::core::compiler::build_runner::BuildRunner::compile
+   9: cargo::ops::cargo_compile::compile_ws
+  10: cargo::ops::cargo_compile::compile_with_exec
+  11: cargo::ops::cargo_compile::compile
+  12: cargo::commands::check::exec
+  13: cargo::cli::Exec::exec
+  14: cargo::cli::main
+  15: cargo::main
+  16: std::sys::backtrace::__rust_begin_short_backtrace
+  17: std::rt::lang_start::{{closure}}
+  18: std::rt::lang_start_internal
+  19: _main
+   0.032231042s  INFO prepare_target{force=false package_id=chess v0.1.0 (/Users/hayley/Projects/chess/rust-chess) target="chess"}: cargo::core::compiler::fingerprint: fingerprint error for chess v0.1.0 (/Users/hayley/Projects/chess/rust-chess)/Check { test: true }/TargetInner { name: "chess", doc: true, ..: with_path("/Users/hayley/Projects/chess/rust-chess/src/main.rs", Edition2024) }
+   0.032234584s  INFO prepare_target{force=false package_id=chess v0.1.0 (/Users/hayley/Projects/chess/rust-chess) target="chess"}: cargo::core::compiler::fingerprint:     err: failed to read `/Users/hayley/Projects/chess/rust-chess/target/debug/.fingerprint/chess-d8f4cb2201dfd8e8/test-bin-chess`
+
+Caused by:
+    No such file or directory (os error 2)
+
+Stack backtrace:
+   0: std::backtrace::Backtrace::create
+   1: std::backtrace::Backtrace::capture
+   2: <E as anyhow::context::ext::StdError>::ext_context
+   3: cargo_util::paths::read
+   4: cargo::core::compiler::fingerprint::_compare_old_fingerprint
+   5: cargo::core::compiler::fingerprint::prepare_target
+   6: cargo::core::compiler::compile
+   7: cargo::core::compiler::build_runner::BuildRunner::compile
+   8: cargo::ops::cargo_compile::compile_ws
+   9: cargo::ops::cargo_compile::compile_with_exec
+  10: cargo::ops::cargo_compile::compile
+  11: cargo::commands::check::exec
+  12: cargo::cli::Exec::exec
+  13: cargo::cli::main
+  14: cargo::main
+  15: std::sys::backtrace::__rust_begin_short_backtrace
+  16: std::rt::lang_start::{{closure}}
+  17: std::rt::lang_start_internal
+  18: _main
+    Checking colored v3.1.1
+    Checking chess v0.1.0 (/Users/hayley/Projects/chess/rust-chess)
+    Finished `dev` profile [unoptimized + debuginfo] target(s) in 0.40s
