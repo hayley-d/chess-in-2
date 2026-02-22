@@ -6,7 +6,7 @@ use std::fmt;
 
 // Get an RNG:
 
-#[derive(PartialEq, Copy, Clone, Debug)]
+#[derive(PartialEq, Eq, Copy, Clone, Debug)]
 enum PieceTypes {
     Null = 0,
     Pawn = 1,
@@ -17,12 +17,36 @@ enum PieceTypes {
     King = 100,
 }
 
-#[derive(PartialEq, Copy)]
+impl PartialOrd for PieceTypes {
+    fn partial_cmp(&self, other: &Self) -> Option<std::cmp::Ordering> {
+        Some((*self as i32).cmp(&(*other as i32)))
+    }
+}
+
+impl Ord for PieceTypes {
+    fn cmp(&self, other: &Self) -> std::cmp::Ordering {
+        (*self as i32).cmp(&(*other as i32))
+    }
+}
+
+#[derive(PartialEq, Copy, Eq)]
 struct Piece {
     color: Color,
     value: PieceTypes,
     x: usize,
     y: usize,
+}
+
+impl PartialOrd for Piece {
+    fn partial_cmp(&self, other: &Self) -> Option<std::cmp::Ordering> {
+        self.value.partial_cmp(&other.value)
+    }
+}
+
+impl Ord for Piece {
+    fn cmp(&self, other: &Self) -> std::cmp::Ordering {
+        self.value.cmp(&other.value)
+    }
 }
 
 struct Move {
@@ -92,6 +116,7 @@ impl GameBoard {
             }
         }
 
+        pieces.sort_by(|a, b| (*a).cmp(*b));
         pieces
     }
 }
@@ -218,7 +243,7 @@ fn get_possible_pieces(is_white: bool, gameboard: &GameBoard) -> Vec<&Piece> {
             _ => "H",
         };
 
-        println!("{} in {} {}", name, x, 8 - piece.y);
+        println!("{} in {}{}", name, x, 8 - piece.y);
     }
     pieces
 }
