@@ -213,10 +213,16 @@ impl Piece {
         todo!()
     }
 
-    fn valid_king_move(&self, destination: &PlayerMove, gameboard: &GameBoard) -> bool {
-        let is_take_attempt = Piece::is_take_attempt(destination, gameboard);
-
-        todo!()
+    fn valid_king_move(&self, destination: &PlayerMove, _gameboard: &GameBoard) -> bool {
+        let is_straight = destination.x == self.x;
+        let is_horizontal = destination.y == self.y;
+        let is_diagonal = (destination.x == self.x - 1 || destination.x == self.x + 1)
+            && (destination.y == self.y - 1 || destination.y == self.y + 1);
+        if (is_straight && !is_horizontal) || (is_horizontal && !is_straight) || (is_diagonal) {
+            true
+        } else {
+            false
+        }
     }
 
     fn is_take_attempt(destination: &PlayerMove, gameboard: &GameBoard) -> bool {
@@ -254,4 +260,4 @@ fn get_possible_pieces(is_white: bool, gameboard: &GameBoard) -> Vec<&Piece> {
     pieces
 }
 
-fn get_possible_destinations(piece: &Piece) -> Vec<Move> {}
+fn get_possible_destinations(piece: &Piece) -> Vec<PlayerMove> {}
