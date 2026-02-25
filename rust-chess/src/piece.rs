@@ -22,8 +22,14 @@ pub struct Piece {
 }
 
 pub struct PlayerMove {
-    x: usize,
-    y: usize,
+    pub x: usize,
+    pub y: usize,
+}
+
+impl PlayerMove {
+    pub fn new(x: usize, y: usize) -> Self {
+        PlayerMove { x, y }
+    }
 }
 
 pub trait Move {
@@ -145,205 +151,97 @@ impl Piece {
     }
 
     fn valid_rook_move(&self, destination: &PlayerMove, gameboard: &GameBoard) -> bool {
-        let vertical = destination.x == self.x;
-        let horizontal = destination.y == self.y;
+        let dx = destination.x as isize - self.x as isize;
+        let dy = destination.y as isize - self.y as isize;
 
-        let is_vertical_decrease = destination.y > self.y;
-        let is_horizontal_decrease = destination.x > self.x;
-
-        if vertical && !horizontal {
-            let mut iter = self.y;
-
-            if is_vertical_decrease {
-                while iter < destination.y {
-                    if gameboard.board[self.x][iter].value != PieceTypes::Null {
-                        return false;
-                    }
-                    iter += 1;
-                }
-            } else {
-                while iter > destination.y {
-                    if gameboard.board[self.x][iter].value != PieceTypes::Null {
-                        return false;
-                    }
-                    iter -= 1;
-                }
-            }
-            true
-        } else if horizontal && !vertical {
-            let mut iter = self.x;
-
-            if is_horizontal_decrease {
-                while iter < destination.x {
-                    if gameboard.board[iter][self.y].value != PieceTypes::Null {
-                        return false;
-                    }
-                    iter += 1;
-                }
-            } else {
-                while iter > destination.x {
-                    if gameboard.board[iter][self.y].value != PieceTypes::Null {
-                        return false;
-                    }
-                    iter -= 1;
-                }
-            }
-
-            false
-        } else {
-            false
+        if dx != 0 && dy != 0 {
+            return false;
         }
+
+        if dx == 0 && dy == 0 {
+            return false;
+        }
+
+        let step_x = dx.signum();
+        let step_y = dy.signum();
+        let steps = dx.abs().max(dy.abs());
+
+        for i in 1..steps {
+            let check_x = (self.x as isize + step_x * i) as usize;
+            let check_y = (self.y as isize + step_y * i) as usize;
+
+            if gameboard.board[check_x][check_y].value != PieceTypes::Null {
+                return false;
+            }
+        }
+
+        true
     }
 
     fn valid_knight_move(&self, destination: &PlayerMove, gameboard: &GameBoard) -> bool {
-        let is_take_attempt = Piece::is_take_attempt(destination, gameboard);
+        let dx = (destination.x as isize - self.x as isize).abs();
+        let dy = (destination.y as isize - self.y as isize).abs();
 
-        todo!()
+        matches!((dx, dy), (2, 1) | (1, 2))
     }
 
     fn valid_bishop_move(&self, destination: &PlayerMove, gameboard: &GameBoard) -> bool {
-        let is_take_attempt = Piece::is_take_attempt(destination, gameboard);
+        let dx = destination.x as isize - self.x as isize;
+        let dy = destination.y as isize - self.y as isize;
 
-        todo!()
+        if dx.abs() != dy.abs() || dx == 0 {
+            return false;
+        }
+
+        let step_x = dx.signum();
+        let step_y = dy.signum();
+        let steps = dx.abs();
+
+        for i in 1..steps {
+            let check_x = (self.x as isize + step_x * i) as usize;
+            let check_y = (self.y as isize + step_y * i) as usize;
+
+            if gameboard.board[check_x][check_y].value != PieceTypes::Null {
+                return false;
+            }
+        }
+
+        true
     }
 
     fn valid_queen_move(&self, destination: &PlayerMove, gameboard: &GameBoard) -> bool {
-        let _is_take_attempt = Piece::is_take_attempt(destination, gameboard);
+        let dx: isize = (destination.x - self.x) as isize;
+        let dy: isize = (destination.y - self.y) as isize;
 
-        let is_diagonal = (self.x < destination.x && self.y > destination.y)
-            || (self.x < destination.x && self.y > destination.y)
-            || (self.x > destination.x && self.y < destination.y)
-            || (self.x > destination.x && self.y > destination.y);
+        let is_diagonal = dx.abs() == dy.abs() && dx != 0;
+        let is_straight = (dx == 0 && dy != 0) || (dy == 0 && dx != 0);
 
-        let is_straight = (self.x == destination.x && self.y != destination.y)
-            || (self.x != destination.x && self.y == destination.y);
+        if !is_diagonal && !is_straight {
+            return false;
+        }
 
-        let is_vertical = destination.y != self.y && destination.x == self.x;
-        let is_horizontal = destination.x != self.x && destination.y == self.y;
+        let step_x: isize = dx.signum();
+        let step_y: isize = dy.signum();
 
-        let is_vertical_decrease = destination.y > self.y;
-        let is_horizontal_decrease = destination.x > self.x;
+        let steps = dx.abs().max(dy.abs());
 
-        let is_ne = self.x < destination.x && self.y > destination.y;
-        let is_se = self.x < destination.x && self.y < destination.y;
+        for i in 1..steps {
+            let check_x = (self.x as isize + (step_x * i)) as usize;
+            let check_y = (self.y as isize + (step_y * i)) as usize;
 
-        let is_sw = self.x > destination.x && self.y < destination.y;
-        let is_nw = self.x > destination.x && self.y > destination.y;
-
-        if is_diagonal {
-            let mut iter_x = self.x;
-            let mut iter_y = self.y;
-
-            if is_ne {
-                while iter_x < destination.x {
-                    while iter_y > destination.y {
-                        if gameboard.board[iter_x][iter_y].value != PieceTypes::Null {
-                            return false;
-                        }
-
-                        iter_y -= 1;
-                    }
-                    iter_x += 1;
-                }
-            } else if is_se {
-                while iter_x < destination.x {
-                    while iter_y < destination.y {
-                        if gameboard.board[iter_x][iter_y].value != PieceTypes::Null {
-                            return false;
-                        }
-
-                        iter_y += 1;
-                    }
-                    iter_x += 1;
-                }
-            } else if is_sw {
-                while iter_x > destination.x {
-                    while iter_y < destination.y {
-                        if gameboard.board[iter_x][iter_y].value != PieceTypes::Null {
-                            return false;
-                        }
-
-                        iter_y += 1;
-                    }
-                    iter_x -= 1;
-                }
-            } else if is_nw {
-                while iter_x > destination.x {
-                    while iter_y > destination.y {
-                        if gameboard.board[iter_x][iter_y].value != PieceTypes::Null {
-                            return false;
-                        }
-
-                        iter_y -= 1;
-                    }
-                    iter_x -= 1;
-                }
+            if gameboard.board[check_x][check_y].value != PieceTypes::Null {
+                return false;
             }
         }
 
-        if is_straight {
-            if is_vertical {
-                let mut iter = self.y;
-
-                if is_vertical_decrease {
-                    while iter > destination.y {
-                        if gameboard.board[self.x][iter].value != PieceTypes::Null {
-                            return false;
-                        }
-
-                        iter -= 1;
-                    }
-                } else {
-                    while iter < destination.y {
-                        if gameboard.board[self.x][iter].value != PieceTypes::Null {
-                            return false;
-                        }
-
-                        iter += 1;
-                    }
-                }
-            }
-
-            if is_horizontal {
-                let mut iter = self.x;
-
-                if is_horizontal_decrease {
-                    while iter > destination.x {
-                        if gameboard.board[iter][self.y].value != PieceTypes::Null {
-                            return false;
-                        }
-
-                        iter -= 1;
-                    }
-                } else {
-                    while iter < destination.y {
-                        if gameboard.board[iter][self.y].value != PieceTypes::Null {
-                            return false;
-                        }
-
-                        iter += 1;
-                    }
-                }
-            }
-
-            return true;
-        } else if is_diagonal {
-            return true;
-        }
-
-        false
+        true
     }
 
     fn valid_king_move(&self, destination: &PlayerMove, _gameboard: &GameBoard) -> bool {
-        let is_straight = destination.x == self.x;
-        let is_horizontal = destination.y == self.y;
-        let is_diagonal = (destination.x == self.x - 1 || destination.x == self.x + 1)
-            && (destination.y == self.y - 1 || destination.y == self.y + 1);
-        if (is_straight && !is_horizontal) || (is_horizontal && !is_straight) || (is_diagonal) {
-            true
-        } else {
-            false
-        }
+        let dx = (destination.x as isize - self.x as isize).abs();
+        let dy = (destination.y as isize - self.y as isize).abs();
+
+        dx <= 1 && dy <= 1 && (dx + dy) > 0
     }
 
     fn is_take_attempt(destination: &PlayerMove, gameboard: &GameBoard) -> bool {
@@ -381,4 +279,6 @@ fn get_possible_pieces(is_white: bool, gameboard: &GameBoard) -> Vec<&Piece> {
     pieces
 }
 
-fn get_possible_destinations(piece: &Piece) -> Vec<PlayerMove> {}
+fn get_possible_destinations(piece: &Piece) -> Vec<PlayerMove> {
+    todo!();
+}

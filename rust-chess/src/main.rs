@@ -62,7 +62,3 @@ fn get_possible_pieces(is_white: bool, gameboard: &GameBoard) -> Vec<&Piece> {
     }
     pieces
 }
-
-fn get_possible_moves(gameboard: &GameBoard) -> Vec<Move> {
-    todo!()
-}
