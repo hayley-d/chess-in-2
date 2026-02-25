@@ -21,6 +21,7 @@ pub struct Piece {
     pub y: usize,
 }
 
+#[derive(Clone)]
 pub struct PlayerMove {
     pub x: usize,
     pub y: usize,
@@ -111,6 +112,10 @@ impl fmt::Display for Piece {
 
 impl Piece {
     pub fn valid_move(&self, destination: &PlayerMove, gameboard: &GameBoard) -> bool {
+        if gameboard.board[destination.x][destination.y].color == self.color {
+            return false;
+        }
+
         match self.value {
             PieceTypes::Pawn => self.valid_pawn_move(destination, gameboard),
             PieceTypes::Rook => self.valid_rook_move(destination, gameboard),
@@ -120,6 +125,26 @@ impl Piece {
             PieceTypes::King => self.valid_king_move(destination, gameboard),
             PieceTypes::Null => false,
         }
+    }
+
+    pub fn get_valid_moves(&self, gameboard: &GameBoard) -> Vec<PlayerMove> {
+        let mut moves = Vec::new();
+
+        let mut x = 0;
+        let mut y = 0;
+
+        while x < 8 {
+            while y < 8 {
+                let player_move = PlayerMove::new(x, y);
+                if self.valid_move(&player_move, gameboard) {
+                    moves.push(player_move.clone());
+                }
+                y += 1;
+            }
+            x += 1;
+        }
+
+        moves
     }
 
     fn valid_pawn_move(&self, destination: &PlayerMove, gameboard: &GameBoard) -> bool {
@@ -142,11 +167,11 @@ impl Piece {
         let start_pos = if self.color == Color::Black { 1 } else { 6 };
 
         if !is_take_attempt && self.y == start_pos {
-            return is_one_forward || is_two_forward && straight;
+            is_one_forward || is_two_forward && straight
         } else if !is_take_attempt {
-            return is_one_forward && straight;
+            is_one_forward && straight
         } else {
-            return is_one_forward && is_diagonal;
+            is_one_forward && is_diagonal
         }
     }
 
@@ -277,8 +302,4 @@ fn get_possible_pieces(is_white: bool, gameboard: &GameBoard) -> Vec<&Piece> {
         println!("{} in {}{}", name, x, 8 - piece.y);
     }
     pieces
-}
-
-fn get_possible_destinations(piece: &Piece) -> Vec<PlayerMove> {
-    todo!();
 }

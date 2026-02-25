@@ -16,7 +16,6 @@ mod tests {
         board.board[x][y] = Piece::new(Color::White, piece_type, x, y);
     }
 
-    // FAIL
     #[test]
     fn rook_valid_vertical_move() {
         let board = empty_board();
