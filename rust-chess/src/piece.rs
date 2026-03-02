@@ -34,11 +34,12 @@ impl PlayerMove {
 }
 
 pub trait Move {
-    fn move_piece(&self, player_move: &PlayerMove) -> bool;
+    fn move_piece(&self, player_move: &PlayerMove, gameBoard: &GameBoard) -> bool;
 }
 
 impl Move for Piece {
-    fn move_piece(&self, player_move: &PlayerMove) -> bool {
+    fn move_piece(&self, player_move: &PlayerMove, gameboard: &GameBoard) -> bool {
+        if self.valid_move(player_move, gameboard) {}
         todo!()
     }
 }
